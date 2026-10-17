@@ -1,0 +1,7 @@
+# Installers and VM files don't belong in the repo
+*.exe
+*.msi
+*.iso
+*.vhdx
+*.avhdx
+Thumbs.db
