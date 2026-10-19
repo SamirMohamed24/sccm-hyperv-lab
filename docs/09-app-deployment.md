@@ -82,7 +82,7 @@ If it installs with no windows, the switch works. Uninstall it again before depl
 
 ![Deployment type Programs tab with install and uninstall commands](../images/sc01/05-create-app-notepad/09-deployment-type-programs-tab.png)
 
-Put the uninstall command in **Uninstall program**, not in **Installation start in**. That field is a working directory, and a command there makes the install fail with `0x80070003` (path not found).
+
 
 ### Detection method
 
@@ -97,7 +97,7 @@ Put the uninstall command in **Uninstall program**, not in **Installation start 
 | Associated with a 32-bit application on 64-bit systems | **Unticked** |
 | Rule | **The file system setting must exist on the target system** |
 
-![Correct detection rule](../images/sc01/05-create-app-notepad/05-detection-rule.png)
+![Detection rule](../images/sc01/05-create-app-notepad/05-detection-rule.png)
 
 Notes on the rule:
 
