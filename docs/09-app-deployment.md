@@ -17,12 +17,14 @@ Two apps are deployed in the lab and shown in Software Center on WIN10:
 
 ## Content share
 
-All sources live on SC01 in a share, one folder per app:
+All sources live on SC01 in shared folders, one folder per app:
 
 ```
-\\sc01\SCCMAPP\NotepadPlusPlus\npp.x64.exe
-\\sc01\SCCMAPP\7-Zip\7z-x64.msi
+\\SC01\SCCMNotepadPlusPlus\npp.x64.exe
+\\SC01\SCCMAPP\7-Zip\7z-x64.msi
 ```
+
+![Notepad++ source folder shared as \\SC01\SCCMNotepadPlusPlus](../images/sc01/05-create-app-notepad/00-content-source-share.png)
 
 - **Share permission:** Everyone = Read
 - **NTFS:** SC01$ (and Everyone or Domain Computers) = Read
@@ -38,7 +40,7 @@ SCCM copies **everything** in the content folder to the clients, which is why ea
 On WIN10, in an admin command prompt:
 
 ```
-\\sc01\SCCMAPP\NotepadPlusPlus\npp.x64.exe /S
+\\SC01\SCCMNotepadPlusPlus\npp.x64.exe /S
 ```
 
 If it installs with no windows, the switch works. Uninstall it again before deploying:
@@ -64,15 +66,23 @@ If it installs with no windows, the switch works. Uninstall it again before depl
 
 ![Script Installer deployment type](../images/sc01/05-create-app-notepad/03-script-installer-type.png)
 
-![Deployment type general information](../images/sc01/05-create-app-notepad/04-deployment-type-general.png)
-
-| Page | Field | Value |
+| Tab | Field | Value |
 |---|---|---|
 | General | Name | `Notepad++ x64 EXE` |
-| Content | Content location | `\\sc01\SCCMAPP\NotepadPlusPlus` (a **folder**, not the .exe) |
-| Content | Installation program | `npp.x64.exe /S` |
-| Content | Uninstall program | `"C:\Program Files\Notepad++\uninstall.exe" /S` |
-| Content | Run as 32-bit process on 64-bit clients | Unticked |
+| General | Administrator comments | `Silent install with /S` |
+| Content | Content location | `\\SC01\SCCMNotepadPlusPlus\` (a **folder**, not the .exe) |
+| Programs | Installation program | `npp.x64.exe /S` |
+| Programs | Installation start in | Empty |
+| Programs | Uninstall program | `"C:\Program Files\Notepad++\uninstall.exe" /S` |
+| Programs | Run as 32-bit process on 64-bit clients | Unticked |
+
+![Deployment type General tab](../images/sc01/05-create-app-notepad/07-deployment-type-general-tab.png)
+
+![Deployment type Content tab with the share as content location](../images/sc01/05-create-app-notepad/08-deployment-type-content-tab.png)
+
+![Deployment type Programs tab with install and uninstall commands](../images/sc01/05-create-app-notepad/09-deployment-type-programs-tab.png)
+
+Put the uninstall command in **Uninstall program**, not in **Installation start in**. That field is a working directory, and a command there makes the install fail with `0x80070003` (path not found).
 
 ### Detection method
 
@@ -168,12 +178,20 @@ A direct rule only adds the computers you tick. To add new machines automaticall
 
    ![Deployment summary](../images/sc01/08-deploy-notepad/05-deploy-summary.png)
 
+The deployment then shows under the application's **Deployments** tab. **Compliance %** starts at 0,0 and goes up as clients report back.
+
+![Notepad++ deployed to Lab Clients as Available](../images/sc01/08-deploy-notepad/06-deployment-lab-clients.png)
+
 ### Test on WIN10
 
 1. Run **Machine Policy Retrieval & Evaluation Cycle** and **Application Deployment Evaluation Cycle**.
 2. Open **Software Center → Applications → Notepad++ → Install**.
 
 ![Software Center showing the deployed apps](../images/win10/04-software-center-apps.png)
+
+After the install, Software Center shows **Status: Installed** and an **Uninstall** button.
+
+![Notepad++ installed from Software Center](../images/sc01/08-deploy-notepad/07-software-center-installed.png)
 
 ### Client logs
 
@@ -182,8 +200,10 @@ A direct rule only adds the computers you tick. To add new machines automaticall
 | Log | Shows |
 |---|---|
 | `AppDiscovery.log` | Whether the detection method finds the app |
-| `AppEnforce.log` | The install command and its exit code (0 = success) |
+| `AppEnforce.log` | The install command and its exit code (0 = success). Created the first time an app install runs |
 | `CAS.log`, `DataTransferService.log` | Content download problems |
+
+Open the logs with **CMTrace** (`C:\Windows\CCM\CMTrace.exe` on the client). A successful install shows `Executing Command line ... with system context`, `exitcode: 0` and **Application discovered** afterwards.
 
 ---
 
